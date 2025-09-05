@@ -1,0 +1,41 @@
+---
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  statuses: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Package action
+        run: |
+          # Get github branch without refs
+          GITHUB_BRANCH=$( echo "${{ github.ref }}" | sed 's/refs\/heads\///g' )
+          echo "GITHUB_BRANCH=$GITHUB_BRANCH" >> "$GITHUB_ENV"
+
+          npm ci
+          npm run package
+
+      - name: Push updated release if available
+        uses: test-room-7/action-update-file@v2.0.0
+        with:
+          branch: ${{ env.GITHUB_BRANCH }}
+          file-path: dist/*
+          commit-msg: Update build to latest version
+          github-token: ${{ secrets.GITHUB_TOKEN }}
