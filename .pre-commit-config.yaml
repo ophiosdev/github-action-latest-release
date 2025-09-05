@@ -2,7 +2,7 @@
 exclude: dist/.*
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: fix-byte-order-marker
@@ -14,17 +14,17 @@ repos:
       - id: check-merge-conflict
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.29.0
+    rev: v1.37.1
     hooks:
       - id: yamllint
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.13.0
+    rev: v0.18.1
     hooks:
     - id: markdownlint-cli2-docker
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.1
+    rev: v1.7.7
     hooks:
     - id: actionlint-docker
 
