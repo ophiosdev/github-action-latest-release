@@ -1,5 +1,5 @@
 ---
-name: Get Latest Release
+name: Get Latest Release Information
 author: Ophios GmbH
 description: >-
   Get the latest release from another repository and output that for use in
