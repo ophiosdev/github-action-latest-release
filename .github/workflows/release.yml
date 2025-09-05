@@ -8,6 +8,7 @@ on:
       - master
     paths:
       - 'src/**'
+      - 'package.json'
 
 permissions:
   contents: write
