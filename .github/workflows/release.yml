@@ -36,7 +36,7 @@ jobs:
           npm run package
 
       - name: Push updated release if available
-        uses: test-room-7/action-update-file@v2.0.0
+        uses: test-room-7/action-update-file@v2.1.0
         with:
           branch: ${{ env.GITHUB_BRANCH }}
           file-path: dist/*
