@@ -15,12 +15,23 @@ Example Repository - https://github.com/ophiosdev/github-action-latest-release
 | includePreReleases | Whether to include pre-release versions. Defaults to false. | No       | false   | "true"                                 |
 | excludes           | Regular expression to match and exclude release tag names.  | No       | (empty) | "^v0\\.1"                              |
 | includes           | Regular expression to match and include release tag names.  | No       | (empty) | "^v1\\."                               |
+| fallbackToTags     | Fall back to the latest tag when no releases are found      | No       | false   | "true"                                 |
 | token              | The GitHub token or personal access token                   | No       | (empty) | `${{ secrets.GITHUB_TOKEN }}`          |
 
-Using the `GITHUB_TOKEN` will avoid the action [failing due to hitting API rate limits](https://github.com/ophiosdev/github-action-latest-release/issues/24)
-from the IP address of the GitHub runner your action is running on. Using a `PERSONAL_ACCESS_TOKEN` is required to get the release information from a
-private repo. You can read about [how to create a personal access token here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
-and how to [add this as a repository secret here](https://docs.github.com/en/github/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets).
+When `fallbackToTags` is enabled, repositories that do not publish releases -
+for example
+[anthropics/claude-code](https://github.com/anthropics/claude-code) - fall back
+to the latest tag. In that case the `description` and `assetsUrl` outputs are
+empty and `id` is the tag's commit SHA.
+
+Using the `GITHUB_TOKEN` will avoid the action
+[failing due to hitting API rate limits](https://github.com/ophiosdev/github-action-latest-release/issues/24)
+from the IP address of the GitHub runner your action is running on. Using a
+`PERSONAL_ACCESS_TOKEN` is required to get the release information from a
+private repo. You can read about
+[how to create a personal access token here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+and how to
+[add this as a repository secret here](https://docs.github.com/en/github/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets).
 
 ### Outputs
 
@@ -67,11 +78,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ophiosdev/keydb-timeseries
           dockerfile: timeseries.dockerfile
-          build_args:
-            KEY_DB_VERSION=${{ steps.keydb.outputs.release }},
+          build_args: KEY_DB_VERSION=${{ steps.keydb.outputs.release }},
             REDIS_TIME_SERIES_VERSION=${{ steps.timeseries.outputs.release }}
-          tags:
-            latest, ${{ steps.keydb.outputs.release }}_${{
+          tags: latest, ${{ steps.keydb.outputs.release }}_${{
             steps.timeseries.outputs.release }}
 ```
 
