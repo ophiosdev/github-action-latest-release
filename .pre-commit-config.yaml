@@ -27,6 +27,9 @@ repos:
     rev: v1.7.12
     hooks:
       - id: actionlint-system
+        args:
+          - -config-file
+          - actionlint.yml
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.48.0

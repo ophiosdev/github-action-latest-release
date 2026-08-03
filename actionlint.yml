@@ -12,5 +12,10 @@ config-variables: null
 # "ignore" is an array of regular expression patterns. Matched error messages
 # are ignored. This is similar to the "-ignore" command line option.
 paths:
-#  .github/workflows/**/*.yml:
-#    ignore: []
+  # actionlint's bundled metadata for create-github-app-token@v3 is stale; it
+  # still requires "app-id" and does not know "client-id". The real action
+  # (actions/create-github-app-token@v3) uses "client-id" (app-id deprecated).
+  .github/workflows/release.yml:
+    ignore:
+      - 'input "client-id" is not defined in action "actions/create-github-app-token@v3"'
+      - 'missing input "app-id" which is required by action "actions/create-github-app-token@v3"'
