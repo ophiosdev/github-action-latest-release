@@ -18,7 +18,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
         with:
           ref: ${{ github.ref }}
 
@@ -29,19 +29,20 @@ jobs:
       - name: Package action
         run: |
           # Get github branch without refs
-          GITHUB_BRANCH=$( echo "${{ github.ref }}" | sed 's/refs\/heads\///g' )
+          GITHUB_BRANCH=$( echo "$GITHUB_REF" | sed 's/refs\/heads\///g' )
           echo "GITHUB_BRANCH=$GITHUB_BRANCH" >> "$GITHUB_ENV"
 
           npm ci
           npm run package
 
       - name: Push updated release if available
-        uses: test-room-7/action-update-file@v2.1.0
+        uses: test-room-7/action-update-file@v2.1.0 # zizmor: ignore[unpinned-uses]
         with:
           branch: ${{ env.GITHUB_BRANCH }}
           file-path: dist/*
           commit-msg: Update build to latest version
           github-token: ${{ secrets.GITHUB_TOKEN }}
+        if: github.ref == 'refs/heads/master'
 
       - name: Tag version from package.json
         run: |
@@ -51,4 +52,4 @@ jobs:
           echo "Tagging version $VERSION"
           git tag -f "$TAG" "origin/$GITHUB_BRANCH"
           git push --force origin "$TAG"
-        if: startsWith(github.ref, 'refs/heads/')
+        if: github.ref == 'refs/heads/master'
