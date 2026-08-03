@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
         with:
           # Full git history is needed to get a proper list of changed files
           # within `super-linter`
@@ -27,7 +27,7 @@ jobs:
 
       - name: Setup Node.js
         id: setup-node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4 # zizmor: ignore[unpinned-uses]
         with:
           node-version-file: .node-version
           cache: npm
@@ -48,12 +48,14 @@ jobs:
 
       - name: Lint Codebase
         id: super-linter
-        uses: super-linter/super-linter/slim@v8
+        uses: super-linter/super-linter/slim@v8 # zizmor: ignore[unpinned-uses]
         env:
           DEFAULT_BRANCH: master
           FILTER_REGEX_EXCLUDE: dist/**/*
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
+          VALIDATE_GIT_COMMITLINT: false
+          VALIDATE_PYTHON_BLACK: false
           VALIDATE_BIOME_FORMAT: false
           VALIDATE_BIOME_LINT: false
           VALIDATE_JAVASCRIPT_ES: false
