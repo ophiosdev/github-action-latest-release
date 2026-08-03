@@ -39,7 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "esbuild": "0.28.1",
-    "eslint": "^9",
+    "eslint": "^10.0.0",
     "eslint-config-prettier": "^10",
     "eslint-import-resolver-typescript": "^4",
     "eslint-plugin-import": "^2",
