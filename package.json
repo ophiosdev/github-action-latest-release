@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1",
-    "@github/local-action": "^5",
+    "@github/local-action": "^7.0.0",
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
