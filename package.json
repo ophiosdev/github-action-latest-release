@@ -46,7 +46,7 @@
     "eslint-plugin-jest": "^29",
     "eslint-plugin-prettier": "^5",
     "prettier": "^3",
-    "prettier-eslint": "^16",
+    "prettier-eslint": "^17.0.0",
     "typescript": "^5"
   },
   "dependencies": {
