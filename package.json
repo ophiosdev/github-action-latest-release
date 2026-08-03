@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "@actions/github": "^6",
+    "@actions/github": "^9.0.0",
     "@octokit/rest": "^22.0.0"
   },
   "overrides": {
