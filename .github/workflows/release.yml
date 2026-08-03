@@ -22,9 +22,10 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4 # zizmor: ignore[unpinned-uses]
         with:
-          node-version: 20
+          node-version-file: .node-version
+          cache: npm
 
       - name: Package action
         run: |
