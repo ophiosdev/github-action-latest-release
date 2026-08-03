@@ -42,3 +42,13 @@ jobs:
           file-path: dist/*
           commit-msg: Update build to latest version
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag version from package.json
+        run: |
+          git fetch origin "$GITHUB_BRANCH"
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          echo "Tagging version $VERSION"
+          git tag -f "$TAG" "origin/$GITHUB_BRANCH"
+          git push --force origin "$TAG"
+        if: startsWith(github.ref, 'refs/heads/')
