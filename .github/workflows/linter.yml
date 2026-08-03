@@ -24,6 +24,7 @@ jobs:
           # Full git history is needed to get a proper list of changed files
           # within `super-linter`
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
         id: setup-node
@@ -54,6 +55,7 @@ jobs:
           FILTER_REGEX_EXCLUDE: dist/**/*
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
+          SAVE_SUPER_LINTER_SUMMARY: true
           VALIDATE_GIT_COMMITLINT: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_BIOME_FORMAT: false
