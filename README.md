@@ -97,3 +97,22 @@ To use authentication token:
 with:
   token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+## How to Rebase
+
+The `dist/` folder contains generated build artifacts. To prevent merge or
+rebase conflicts on those files, they are marked in `.gitattributes` with
+`-diff` and `merge=ours`. During a rebase or merge, `dist/` changes are never
+conflicting and the version of the branch you are rebasing onto is kept
+automatically.
+
+One-time setup on your machine is required for the `merge=ours` driver:
+
+```sh
+git config --global merge.ours.driver true
+```
+
+Without this configuration, git falls back to a regular three-way merge and
+`dist/` files can conflict again. The `dist/` files of the branch you rebase
+onto are generated from its `src/`, so keeping them is always the correct
+choice.
