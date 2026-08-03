@@ -1,0 +1,26 @@
+{
+  "plugins": ["prettier-plugin-multiline-arrays"],
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": false,
+  "quoteProps": "as-needed",
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "overrides": [
+    {
+      "files": ".yamllint",
+      "options": {
+        "parser": "yaml"
+      }
+    },
+    {
+      "files": "renovate.json",
+      "options": {
+        "multilineArraysWrapThreshold": 1
+      }
+    }
+  ]
+}
