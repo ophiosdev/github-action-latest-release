@@ -21,12 +21,12 @@ repos:
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.23.2
     hooks:
-      - id: markdownlint-cli2-docker
+      - id: markdownlint-cli2
 
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.12
     hooks:
-      - id: actionlint-docker
+      - id: actionlint-system
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.48.0
