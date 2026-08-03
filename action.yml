@@ -5,40 +5,44 @@ description: >-
   Get the latest release from another repository and output that for use in
   other actions
 branding:
-  icon: 'git-branch'
-  color: 'orange'
+  icon: "git-branch"
+  color: "orange"
 inputs:
   repository:
-    description: 'The repository name in full'
+    description: "The repository name in full"
     required: false
   includeDrafts:
-    description: 'Whether to include draft releases'
+    description: "Whether to include draft releases"
     required: false
-    default: 'false'
+    default: "false"
   includePreReleases:
-    description: 'Whether to include pre-releases'
+    description: "Whether to include pre-releases"
     required: false
-    default: 'false'
+    default: "false"
   excludes:
-    description: 'Regex of release names to exclude'
+    description: "Regex of release names to exclude"
     required: false
   includes:
-    description: 'Regex of release names to include'
+    description: "Regex of release names to include"
     required: false
+  fallbackToTags:
+    description: "Whether to fall back to the latest tag when no releases are found"
+    required: false
+    default: "false"
   token:
-    description: 'The GitHub token or personal access token'
+    description: "The GitHub token or personal access token"
     required: false
 outputs:
   release:
-    description: 'Latest release version tag'
+    description: "Latest release version tag"
   id:
-    description: 'Latest release ID'
+    description: "Latest release ID"
   description:
-    description: 'Latest release description body'
+    description: "Latest release description body"
   url:
-    description: 'API URL for the latest release'
+    description: "API URL for the latest release"
   assetsUrl:
-    description: 'API URL for the assets of the latest release'
+    description: "API URL for the assets of the latest release"
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: "node24"
+  main: "dist/index.js"
