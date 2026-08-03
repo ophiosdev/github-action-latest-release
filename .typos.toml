@@ -8,7 +8,7 @@
 # For example, to check all files, you would set:
 # ignore-vcs = false
 extend-exclude = [
-  "**/.envrc",
+  ".mise.toml",
 ]
 
 [default]
