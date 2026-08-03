@@ -37,21 +37,31 @@ jobs:
           npm ci
           npm run package
 
+      - name: Generate GitHub App token
+        id: app_token
+        uses: actions/create-github-app-token@v3 # zizmor: ignore[unpinned-uses]
+        with:
+          client-id: ${{ secrets.WORKFLOW_APP_ID }}
+          private-key: ${{ secrets.WORKFLOW_APP_PRIVATE_KEY }}
+        if: github.ref == 'refs/heads/master'
+
       - name: Push updated release if available
         uses: test-room-7/action-update-file@v2.1.0 # zizmor: ignore[unpinned-uses]
         with:
           branch: ${{ env.GITHUB_BRANCH }}
           file-path: dist/*
           commit-msg: Update build to latest version
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.app_token.outputs.token }}
         if: github.ref == 'refs/heads/master'
 
       - name: Tag version from package.json
+        env:
+          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
           git fetch origin "$GITHUB_BRANCH"
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
           echo "Tagging version $VERSION"
           git tag -f "$TAG" "origin/$GITHUB_BRANCH"
-          git push --force origin "$TAG"
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)" push --force origin "$TAG"
         if: github.ref == 'refs/heads/master'
