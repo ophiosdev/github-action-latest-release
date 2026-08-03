@@ -50,7 +50,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@actions/core": "^1",
+    "@actions/core": "^3.0.0",
     "@actions/github": "^6",
     "@octokit/rest": "^21"
   },
