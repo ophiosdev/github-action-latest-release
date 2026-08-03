@@ -21,6 +21,7 @@ jobs:
       - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
         with:
           ref: ${{ github.ref }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4 # zizmor: ignore[unpinned-uses]
         with:
