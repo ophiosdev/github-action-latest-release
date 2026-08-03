@@ -52,7 +52,7 @@
   "dependencies": {
     "@actions/core": "^1",
     "@actions/github": "^6",
-    "@octokit/rest": "^21"
+    "@octokit/rest": "^22.0.0"
   },
   "overrides": {
     "rimraf": "^4",
