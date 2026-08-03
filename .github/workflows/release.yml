@@ -54,14 +54,57 @@ jobs:
           github-token: ${{ steps.app_token.outputs.token }}
         if: github.ref == 'refs/heads/master'
 
-      - name: Tag version from package.json
-        env:
-          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-        run: |
-          git fetch origin "$GITHUB_BRANCH"
-          VERSION=$(node -p "require('./package.json').version")
-          TAG="v$VERSION"
-          echo "Tagging version $VERSION"
-          git tag -f "$TAG" "origin/$GITHUB_BRANCH"
-          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)" push --force origin "$TAG"
+      - name: Tag and create release
+        uses: actions/github-script@v9 # zizmor: ignore[unpinned-uses]
+        with:
+          github-token: ${{ steps.app_token.outputs.token }}
+          script: |
+            const fs = require('node:fs');
+            const { version } = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+            const tag = `v${version}`;
+            const sha = context.sha;
+            core.info(`Creating release ${tag} at ${sha}`);
+
+            // Overwrite tag to point at current commit, create it if missing
+            try {
+              await github.rest.git.updateRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${tag}`,
+                sha,
+                force: true,
+              });
+            } catch (error) {
+              const status = error.status;
+              if (status !== 422) {
+                throw error;
+              }
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${tag}`,
+                sha,
+              });
+            }
+
+            // Remove existing release so it can be recreated
+            try {
+              await github.rest.repos.deleteReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag,
+              });
+            } catch (error) {
+              core.info(`No existing release for tag ${tag}, skipping delete`);
+            }
+
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: tag,
+              generate_release_notes: true,
+            });
+
+            core.info(`Release ${tag} created`);
         if: github.ref == 'refs/heads/master'
