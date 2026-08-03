@@ -1,6 +1,6 @@
 {
   "name": "github-action-latest-release",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An action to get the latest release from a Github repo.",
   "private": true,
   "exports": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "package": "esbuild --bundle --minify --sourcemap --platform=node --target=node20 --outfile=dist/index.js src/index.ts",
+    "package": "esbuild --bundle --minify --sourcemap --platform=node --target=node24 --outfile=dist/index.js src/index.ts",
     "build": "tsc",
     "format:write": "prettier --write .",
     "format:check": "prettier --check .",
@@ -30,7 +30,7 @@
   "author": "Ophios GmbH",
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "devDependencies": {
     "@eslint/compat": "^1",
@@ -46,7 +46,7 @@
     "eslint-plugin-jest": "^29",
     "eslint-plugin-prettier": "^5",
     "prettier": "^3",
-    "prettier-eslint": "^16",
+    "prettier-plugin-multiline-arrays": "^4.1.11",
     "typescript": "^5"
   },
   "dependencies": {
@@ -55,9 +55,7 @@
     "@octokit/rest": "^21"
   },
   "overrides": {
-    "@humanwhocodes/config-array": "@eslint/config-array",
     "rimraf": "^4",
-    "@humanwhocodes/object-schema": "@eslint/object-schema",
     "glob": "^9"
   }
 }
