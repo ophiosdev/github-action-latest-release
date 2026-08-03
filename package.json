@@ -55,7 +55,7 @@
     "@octokit/rest": "^21"
   },
   "overrides": {
-    "rimraf": "^4",
+    "rimraf": "^6.0.0",
     "glob": "^9",
     "undici": "^8.0.0"
   }
