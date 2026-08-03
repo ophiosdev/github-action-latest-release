@@ -8,6 +8,8 @@ NODE_PACKAGE_MANAGER="npm"
 
 [tools]
 prek = "latest"
+actionlint = "latest"
+typos = "latest"
 
 [hooks]
 enter = ["mise run setup"]
