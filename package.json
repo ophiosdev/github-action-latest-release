@@ -56,6 +56,7 @@
   },
   "overrides": {
     "rimraf": "^4",
-    "glob": "^9"
+    "glob": "^9",
+    "undici": "^7"
   }
 }
