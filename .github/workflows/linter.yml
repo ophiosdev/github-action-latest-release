@@ -26,6 +26,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Detect changed files
+        id: changed-files
+        if: github.event_name == 'pull_request'
+        uses: tj-actions/changed-files@v47 # zizmor: ignore[unpinned-uses]
+        with:
+          files: |
+            src/**
+
       - name: Setup Node.js
         id: setup-node
         uses: actions/setup-node@v4 # zizmor: ignore[unpinned-uses]
@@ -38,6 +46,7 @@ jobs:
         run: npm ci
 
       - name: Ensure package.json version has no tag yet
+        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
