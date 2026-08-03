@@ -1,6 +1,6 @@
 # GitHub Action - Get Latest Release
 
-A simple Github action to get the latest release from another repository.
+A simple GitHub Action to get the latest release from another repository.
 
 ## Configuration
 
@@ -8,15 +8,15 @@ Example Repository - https://github.com/ophiosdev/github-action-latest-release
 
 ### Inputs
 
-| Name               | Description                                                 | Required | Default | Example                                |
-| ------------------ | ----------------------------------------------------------- | -------- | ------- | -------------------------------------- |
-| repository         | The repository name in full                                 | Yes      | N/A     | ophiosdev/github-action-latest-release |
-| includeDrafts      | Whether to include draft releases. Defaults to false.       | No       | false   | "true"                                 |
-| includePreReleases | Whether to include pre-release versions. Defaults to false. | No       | false   | "true"                                 |
-| excludes           | Regular expression to match and exclude release tag names.  | No       | (empty) | "^v0\\.1"                              |
-| includes           | Regular expression to match and include release tag names.  | No       | (empty) | "^v1\\."                               |
-| fallbackToTags     | Fall back to the latest tag when no releases are found      | No       | false   | "true"                                 |
-| token              | The GitHub token or personal access token                   | No       | (empty) | `${{ secrets.GITHUB_TOKEN }}`          |
+| Name               | Description                                                | Required | Default | Example                                |
+| ------------------ | ---------------------------------------------------------- | -------- | ------- | -------------------------------------- |
+| repository         | The repository name in full                                | Yes      | N/A     | ophiosdev/github-action-latest-release |
+| includeDrafts      | Whether to include draft releases. Defaults to false.      | No       | false   | "true"                                 |
+| includePreReleases | Whether to include prerelease versions. Defaults to false. | No       | false   | "true"                                 |
+| excludes           | Regular expression to match and exclude release tag names. | No       | (empty) | "^v0\\.1"                              |
+| includes           | Regular expression to match and include release tag names. | No       | (empty) | "^v1\\."                               |
+| fallbackToTags     | Fall back to the latest tag when no releases are found     | No       | false   | "true"                                 |
+| token              | The GitHub token or personal access token                  | No       | (empty) | `${{ secrets.GITHUB_TOKEN }}`          |
 
 When `fallbackToTags` is enabled, repositories that do not publish releases -
 for example
@@ -28,12 +28,14 @@ Using the `GITHUB_TOKEN` will avoid the action
 [failing due to hitting API rate limits](https://github.com/ophiosdev/github-action-latest-release/issues/24)
 from the IP address of the GitHub runner your action is running on. Using a
 `PERSONAL_ACCESS_TOKEN` is required to get the release information from a
-private repo. You can read about
+private repository. You can read about
 [how to create a personal access token here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
 and how to
 [add this as a repository secret here](https://docs.github.com/en/github/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets).
 
 ### Outputs
+
+<!-- textlint-disable terminology -->
 
 | Name        | Description                         | Example                                                       |
 | ----------- | ----------------------------------- | ------------------------------------------------------------- |
@@ -42,6 +44,8 @@ and how to
 | description | The latest release description body | This is an example release                                    |
 | url         | API URL for the latest release      | https://api.github.com/repos/owner/repo/releases/12345        |
 | assetsUrl   | API URL for release assets          | https://api.github.com/repos/owner/repo/releases/12345/assets |
+
+<!-- textlint-enable terminology -->
 
 ## Usage Example
 
@@ -84,7 +88,7 @@ jobs:
             steps.timeseries.outputs.release }}
 ```
 
-To use the current repo:
+To use the current repository:
 
 ```yaml
 with:
@@ -112,7 +116,7 @@ One-time setup on your machine is required for the `merge=ours` driver:
 git config --global merge.ours.driver true
 ```
 
-Without this configuration, git falls back to a regular three-way merge and
+Without this configuration, Git falls back to a regular three-way merge and
 `dist/` files can conflict again. The `dist/` files of the branch you rebase
 onto are generated from its `src/`, so keeping them is always the correct
 choice.
