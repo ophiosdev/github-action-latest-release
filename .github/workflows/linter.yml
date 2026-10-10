@@ -58,7 +58,7 @@ jobs:
 
       - name: Lint Codebase
         id: super-linter
-        uses: super-linter/super-linter/slim@v8 # zizmor: ignore[unpinned-uses]
+        uses: super-linter/super-linter/slim@v9 # zizmor: ignore[unpinned-uses]
         env:
           DEFAULT_BRANCH: master
           FILTER_REGEX_EXCLUDE: dist/**/*
