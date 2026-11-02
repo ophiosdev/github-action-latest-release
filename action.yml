@@ -29,6 +29,12 @@ inputs:
     description: "Whether to fall back to the latest tag when no releases are found"
     required: false
     default: "false"
+  groupByMajorVersion:
+    description: >-
+      Whether to return the latest release per major version as a JSON array
+      in the release output
+    required: false
+    default: "false"
   token:
     description: "The GitHub token or personal access token"
     required: false

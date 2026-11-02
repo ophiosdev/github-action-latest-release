@@ -1,7 +1,7 @@
 import * as core from "@actions/core"
 import { Octokit } from "@octokit/rest"
 
-function compareVersions(a: string, b: string): number {
+export function compareVersions(a: string, b: string): number {
   const aParts = a.match(/\d+/g)?.map(Number) ?? []
   const bParts = b.match(/\d+/g)?.map(Number) ?? []
   const length = Math.max(aParts.length, bParts.length)
@@ -13,6 +13,32 @@ function compareVersions(a: string, b: string): number {
   return a.localeCompare(b)
 }
 
+export interface ReleaseOutput {
+  release: string
+  id: string
+  description: string
+  url: string
+  assetsUrl: string
+}
+
+// latest release per major version (first number between separators), sorted newest major first
+export function groupByMajor<T>(
+  items: T[],
+  versionOf: (x: T) => string,
+  toOutput: (x: T) => ReleaseOutput,
+): ReleaseOutput[] {
+  const latest = new Map<number, T>()
+  for (const item of items) {
+    const major = parseInt(versionOf(item).match(/\d+/)?.[0] ?? "", 10)
+    if (Number.isNaN(major)) continue
+    const current = latest.get(major)
+    if (!current || compareVersions(versionOf(item), versionOf(current)) > 0) {
+      latest.set(major, item)
+    }
+  }
+  return [...latest.values()].map(toOutput).sort((a, b) => compareVersions(b.release, a.release))
+}
+
 export async function run(): Promise<void> {
   const repository: string = core.getInput("repository")
   const token: string = core.getInput("token")
@@ -21,6 +47,7 @@ export async function run(): Promise<void> {
   const excludesPattern: string = core.getInput("excludes")
   const includesPattern: string = core.getInput("includes")
   const fallbackToTags: boolean = core.getInput("fallbackToTags").toLowerCase() === "true"
+  const groupByMajorVersion: boolean = core.getInput("groupByMajorVersion").toLowerCase() === "true"
 
   const octokit = token ? new Octokit({ auth: token }) : new Octokit()
 
@@ -73,6 +100,25 @@ export async function run(): Promise<void> {
       core.info(`::debug::After includes regex filter: ${data.length} releases`)
     }
     if (data.length) {
+      if (groupByMajorVersion) {
+        core.setOutput(
+          "release",
+          JSON.stringify(
+            groupByMajor(
+              data,
+              (x) => x.tag_name,
+              (x) => ({
+                release: x.tag_name,
+                id: String(x.id),
+                description: String(x.body),
+                url: String(x.url),
+                assetsUrl: String(x.assets_url),
+              }),
+            ),
+          ),
+        )
+        return
+      }
       core.debug(`Latest release: ${data[0].tag_name}`)
       core.setOutput("release", data[0].tag_name)
       core.setOutput("id", String(data[0].id))
@@ -96,6 +142,25 @@ export async function run(): Promise<void> {
         core.debug(`After includes regex filter: ${tagData.length} tags`)
       }
       if (tagData.length) {
+        if (groupByMajorVersion) {
+          core.setOutput(
+            "release",
+            JSON.stringify(
+              groupByMajor(
+                tagData,
+                (x) => x.name,
+                (x) => ({
+                  release: x.name,
+                  id: x.commit.sha,
+                  description: "",
+                  url: x.commit.url,
+                  assetsUrl: "",
+                }),
+              ),
+            ),
+          )
+          return
+        }
         const latestTag = tagData.sort((a, b) => compareVersions(b.name, a.name))[0]
         core.debug(`Latest tag: ${latestTag.name}`)
         core.setOutput("release", latestTag.name)
