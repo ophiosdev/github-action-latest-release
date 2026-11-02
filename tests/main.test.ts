@@ -1,4 +1,4 @@
-import { run, compareVersions, groupByMajor, type ReleaseOutput } from "../src/main"
+import { run, compareVersions, groupByVersion, type ReleaseOutput } from "../src/main"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const { inputs, outputs, failure, api } = vi.hoisted(() => ({
@@ -75,7 +75,7 @@ describe("compareVersions", () => {
   })
 })
 
-describe("groupByMajor", () => {
+describe("groupByVersion", () => {
   const versionOf = (x: { tag: string }) => x.tag
   const latestOf = (x: { tag: string; id: number }): ReleaseOutput => ({
     release: x.tag,
@@ -85,41 +85,64 @@ describe("groupByMajor", () => {
     assetsUrl: "",
   })
 
+  const versions = ["2.2.5", "2.2.0", "2.0.0", "1.19.5", "1.19.1", "1.18.0"].map((tag, id) => ({
+    tag,
+    id,
+  }))
+
   it("returns the latest release per major version, newest major first", () => {
-    const items = ["2.2.5", "2.2.0", "2.0.0", "1.19.5", "1.19.1", "1.18.0"].map((tag, id) => ({
-      tag,
-      id,
-    }))
-    expect(groupByMajor(items, versionOf, latestOf).map((o) => o.release)).toEqual([
+    expect(groupByVersion(versions, "major", versionOf, latestOf).map((o) => o.release)).toEqual([
       "2.2.5",
       "1.19.5",
     ])
   })
 
+  it("returns the latest release per major/minor version", () => {
+    expect(groupByVersion(versions, "minor", versionOf, latestOf).map((o) => o.release)).toEqual([
+      "2.2.5",
+      "2.0.0",
+      "1.19.5",
+      "1.18.0",
+    ])
+  })
+
+  it("returns the latest release per major/minor/patch version", () => {
+    expect(groupByVersion(versions, "patch", versionOf, latestOf).map((o) => o.release)).toEqual([
+      "2.2.5",
+      "2.2.0",
+      "2.0.0",
+      "1.19.5",
+      "1.19.1",
+      "1.18.0",
+    ])
+  })
+
   it("handles v prefixes and unordered input", () => {
     const items = ["v1.2.0", "v1.10.0", "v0.9.9", "v1.9.1"].map((tag, id) => ({ tag, id }))
-    expect(groupByMajor(items, versionOf, latestOf).map((o) => o.release)).toEqual([
+    expect(groupByVersion(items, "major", versionOf, latestOf).map((o) => o.release)).toEqual([
       "v1.10.0",
       "v0.9.9",
     ])
   })
 
   it("ignores entries without a version number", () => {
-    expect(groupByMajor([{ tag: "latest" }], versionOf, latestOf)).toEqual([])
+    expect(groupByVersion([{ tag: "latest" }], "major", versionOf, latestOf)).toEqual([])
   })
 
   it("returns an empty array for empty input", () => {
-    expect(groupByMajor([], versionOf, latestOf)).toEqual([])
+    expect(groupByVersion([], "major", versionOf, latestOf)).toEqual([])
   })
 
   it("picks the newest within one major version", () => {
     const items = ["1.1.0", "1.9.0", "1.3.0"].map((tag, id) => ({ tag, id }))
-    expect(groupByMajor(items, versionOf, latestOf).map((o) => o.release)).toEqual(["1.9.0"])
+    expect(groupByVersion(items, "major", versionOf, latestOf).map((o) => o.release)).toEqual([
+      "1.9.0",
+    ])
   })
 
   it("sorts majors in descending order regardless of input order", () => {
     const items = ["0.1.0", "3.0.0", "2.9.9"].map((tag, id) => ({ tag, id }))
-    expect(groupByMajor(items, versionOf, latestOf).map((o) => o.release)).toEqual([
+    expect(groupByVersion(items, "major", versionOf, latestOf).map((o) => o.release)).toEqual([
       "3.0.0",
       "2.9.9",
       "0.1.0",
@@ -170,7 +193,7 @@ describe("run", () => {
   })
 
   it("emits a JSON array with the latest release per major version", async () => {
-    inputs.groupByMajorVersion = "true"
+    inputs.groupBy = "major"
     api.releases = [
       release("2.2.5", 1001),
       release("2.2.0", 1000, { draft: true }),
@@ -200,9 +223,39 @@ describe("run", () => {
     expect(outputs.id).toBeUndefined()
   })
 
+  it("emits the latest release per minor version", async () => {
+    inputs.groupBy = "minor"
+    api.releases = [
+      release("2.2.5", 1001),
+      release("2.2.0", 1000),
+      release("2.0.0", 950),
+      release("1.19.5", 900),
+      release("1.19.1", 850),
+      release("1.18.0", 800),
+    ]
+    await run()
+    expect((JSON.parse(outputs.release) as ReleaseOutput[]).map((o) => o.release)).toEqual([
+      "2.2.5",
+      "2.0.0",
+      "1.19.5",
+      "1.18.0",
+    ])
+  })
+
+  it("emits the latest release per patch version", async () => {
+    inputs.groupBy = "patch"
+    api.releases = [release("2.2.5", 1001), release("2.2.0", 1000), release("1.19.5", 900)]
+    await run()
+    expect((JSON.parse(outputs.release) as ReleaseOutput[]).map((o) => o.release)).toEqual([
+      "2.2.5",
+      "2.2.0",
+      "1.19.5",
+    ])
+  })
+
   it("falls back to the latest tag and supports grouping there too", async () => {
     inputs.fallbackToTags = "true"
-    inputs.groupByMajorVersion = "true"
+    inputs.groupBy = "major"
     api.tags = [
       { name: "v1.10.0", commit: { sha: "sha2", url: "https://u/v1.10.0" } },
       { name: "v1.2.0", commit: { sha: "sha1", url: "https://u/v1.2.0" } },
@@ -227,6 +280,32 @@ describe("run", () => {
     expect(outputs.description).toBe("")
     expect(outputs.url).toBe("https://u/v1.10.0")
     expect(outputs.assetsUrl).toBe("")
+  })
+
+  it("groups fallback tags by minor version", async () => {
+    inputs.fallbackToTags = "true"
+    inputs.groupBy = "minor"
+    api.tags = [
+      { name: "v2.2.5", commit: { sha: "sha25", url: "https://u/v2.2.5" } },
+      { name: "v2.2.0", commit: { sha: "sha20", url: "https://u/v2.2.0" } },
+      { name: "v2.0.0", commit: { sha: "sha00", url: "https://u/v2.0.0" } },
+      { name: "v1.19.5", commit: { sha: "sha195", url: "https://u/v1.19.5" } },
+      { name: "v1.19.1", commit: { sha: "sha191", url: "https://u/v1.19.1" } },
+    ]
+    await run()
+    expect((JSON.parse(outputs.release) as ReleaseOutput[]).map((o) => o.release)).toEqual([
+      "v2.2.5",
+      "v2.0.0",
+      "v1.19.5",
+    ])
+  })
+
+  it("rejects an unsupported groupBy value", async () => {
+    inputs.groupBy = "build"
+    await run()
+    expect(failure.message).toBe(
+      'Invalid groupBy value "build". Expected one of: major, minor, patch.',
+    )
   })
 
   it("still works when excludes regex is invalid", async () => {
