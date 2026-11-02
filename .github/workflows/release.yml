@@ -10,13 +10,20 @@ on:
       - "src/**"
       - "package.json"
 
-permissions:
-  contents: write
-  statuses: read
+# never cancel an in-flight release run
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      statuses: read
     steps:
       - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
         with:
