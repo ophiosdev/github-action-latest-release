@@ -23,12 +23,12 @@ repos:
     hooks:
       - id: markdownlint-cli2
 
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.12
+  - repo: https://github.com/jdx/jactionlint
+    rev: v2.4.0
     hooks:
-      - id: actionlint-system
+      - id: jactionlint-system
         args:
-          - -config-file
+          - --config-file
           - actionlint.yml
 
   - repo: https://github.com/crate-ci/typos
