@@ -21,19 +21,23 @@ export interface ReleaseOutput {
   assetsUrl: string
 }
 
-// latest release per major version (first number between separators), sorted newest major first
-export function groupByMajor<T>(
+export type GroupBy = "major" | "minor" | "patch"
+
+export function groupByVersion<T>(
   items: T[],
+  groupBy: GroupBy,
   versionOf: (x: T) => string,
   toOutput: (x: T) => ReleaseOutput,
 ): ReleaseOutput[] {
-  const latest = new Map<number, T>()
+  const latest = new Map<string, T>()
+  const componentCount = groupBy === "major" ? 1 : groupBy === "minor" ? 2 : 3
   for (const item of items) {
-    const major = parseInt(versionOf(item).match(/\d+/)?.[0] ?? "", 10)
-    if (Number.isNaN(major)) continue
-    const current = latest.get(major)
+    const parts = versionOf(item).match(/\d+/g)?.map(Number)
+    if (!parts?.length) continue
+    const key = parts.slice(0, componentCount).join(".")
+    const current = latest.get(key)
     if (!current || compareVersions(versionOf(item), versionOf(current)) > 0) {
-      latest.set(major, item)
+      latest.set(key, item)
     }
   }
   return [...latest.values()].map(toOutput).sort((a, b) => compareVersions(b.release, a.release))
@@ -47,7 +51,12 @@ export async function run(): Promise<void> {
   const excludesPattern: string = core.getInput("excludes")
   const includesPattern: string = core.getInput("includes")
   const fallbackToTags: boolean = core.getInput("fallbackToTags").toLowerCase() === "true"
-  const groupByMajorVersion: boolean = core.getInput("groupByMajorVersion").toLowerCase() === "true"
+  const groupByInput = core.getInput("groupBy")
+  if (groupByInput && !["major", "minor", "patch"].includes(groupByInput)) {
+    core.setFailed(`Invalid groupBy value "${groupByInput}". Expected one of: major, minor, patch.`)
+    return
+  }
+  const groupBy = groupByInput as GroupBy | ""
 
   const octokit = token ? new Octokit({ auth: token }) : new Octokit()
 
@@ -100,12 +109,13 @@ export async function run(): Promise<void> {
       core.info(`::debug::After includes regex filter: ${data.length} releases`)
     }
     if (data.length) {
-      if (groupByMajorVersion) {
+      if (groupBy) {
         core.setOutput(
           "release",
           JSON.stringify(
-            groupByMajor(
+            groupByVersion(
               data,
+              groupBy,
               (x) => x.tag_name,
               (x) => ({
                 release: x.tag_name,
@@ -142,12 +152,13 @@ export async function run(): Promise<void> {
         core.debug(`After includes regex filter: ${tagData.length} tags`)
       }
       if (tagData.length) {
-        if (groupByMajorVersion) {
+        if (groupBy) {
           core.setOutput(
             "release",
             JSON.stringify(
-              groupByMajor(
+              groupByVersion(
                 tagData,
+                groupBy,
                 (x) => x.name,
                 (x) => ({
                   release: x.name,
