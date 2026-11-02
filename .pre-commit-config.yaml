@@ -27,9 +27,6 @@ repos:
     rev: v2.4.0
     hooks:
       - id: jactionlint-system
-        args:
-          - --config-file
-          - actionlint.yml
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.48.0

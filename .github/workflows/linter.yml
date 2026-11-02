@@ -65,6 +65,10 @@ jobs:
           fi
           echo "Version $VERSION has no tag yet"
 
+      - name: Install tools
+        id: install-tools
+        uses: jdx/mise-action@v5
+
       - name: Lint Codebase
         id: super-linter
         uses: super-linter/super-linter/slim@v8 # zizmor: ignore[unpinned-uses]
