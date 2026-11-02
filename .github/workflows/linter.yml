@@ -5,10 +5,11 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: read
-  statuses: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
 
 jobs:
   build:
@@ -16,6 +17,11 @@ jobs:
     name: Lint Code Base
     # Set the agent to run on
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
 
     steps:
       - name: Checkout Code
@@ -44,6 +50,9 @@ jobs:
       - name: Install Dependencies
         id: install
         run: npm ci
+
+      - name: Test with coverage
+        run: npm test
 
       - name: Ensure package.json version has no tag yet
         if: steps.changed-files.outputs.any_changed == 'true'
