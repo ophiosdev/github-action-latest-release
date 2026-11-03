@@ -19,16 +19,16 @@ repos:
       - id: yamllint
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.23.2
+    rev: v0.24.0
     hooks:
       - id: markdownlint-cli2
 
-  - repo: https://github.com/jdx/jactionlint
-    rev: v2.4.0
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
     hooks:
-      - id: jactionlint-system
+      - id: actionlint-system
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.48.0
+    rev: v1.51.1
     hooks:
       - id: typos
