@@ -33,6 +33,8 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.compareVersions = compareVersions;
+exports.groupByVersion = groupByVersion;
 exports.run = run;
 const core = __importStar(require("@actions/core"));
 const rest_1 = require("@octokit/rest");
@@ -48,6 +50,21 @@ function compareVersions(a, b) {
     }
     return a.localeCompare(b);
 }
+function groupByVersion(items, groupBy, versionOf, toOutput) {
+    const latest = new Map();
+    const componentCount = groupBy === "major" ? 1 : groupBy === "minor" ? 2 : 3;
+    for (const item of items) {
+        const parts = versionOf(item).match(/\d+/g)?.map(Number);
+        if (!parts?.length)
+            continue;
+        const key = parts.slice(0, componentCount).join(".");
+        const current = latest.get(key);
+        if (!current || compareVersions(versionOf(item), versionOf(current)) > 0) {
+            latest.set(key, item);
+        }
+    }
+    return [...latest.values()].map(toOutput).sort((a, b) => compareVersions(b.release, a.release));
+}
 async function run() {
     const repository = core.getInput("repository");
     const token = core.getInput("token");
@@ -56,6 +73,12 @@ async function run() {
     const excludesPattern = core.getInput("excludes");
     const includesPattern = core.getInput("includes");
     const fallbackToTags = core.getInput("fallbackToTags").toLowerCase() === "true";
+    const groupByInput = core.getInput("groupBy");
+    if (groupByInput && !["major", "minor", "patch"].includes(groupByInput)) {
+        core.setFailed(`Invalid groupBy value "${groupByInput}". Expected one of: major, minor, patch.`);
+        return;
+    }
+    const groupBy = groupByInput;
     const octokit = token ? new rest_1.Octokit({ auth: token }) : new rest_1.Octokit();
     let excludesRegex = null;
     if (excludesPattern) {
@@ -106,6 +129,16 @@ async function run() {
             core.info(`::debug::After includes regex filter: ${data.length} releases`);
         }
         if (data.length) {
+            if (groupBy) {
+                core.setOutput("release", JSON.stringify(groupByVersion(data, groupBy, (x) => x.tag_name, (x) => ({
+                    release: x.tag_name,
+                    id: String(x.id),
+                    description: String(x.body),
+                    url: String(x.url),
+                    assetsUrl: String(x.assets_url),
+                }))));
+                return;
+            }
             core.debug(`Latest release: ${data[0].tag_name}`);
             core.setOutput("release", data[0].tag_name);
             core.setOutput("id", String(data[0].id));
@@ -130,6 +163,16 @@ async function run() {
                 core.debug(`After includes regex filter: ${tagData.length} tags`);
             }
             if (tagData.length) {
+                if (groupBy) {
+                    core.setOutput("release", JSON.stringify(groupByVersion(tagData, groupBy, (x) => x.name, (x) => ({
+                        release: x.name,
+                        id: x.commit.sha,
+                        description: "",
+                        url: x.commit.url,
+                        assetsUrl: "",
+                    }))));
+                    return;
+                }
                 const latestTag = tagData.sort((a, b) => compareVersions(b.name, a.name))[0];
                 core.debug(`Latest tag: ${latestTag.name}`);
                 core.setOutput("release", latestTag.name);

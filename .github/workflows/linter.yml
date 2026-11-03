@@ -5,10 +5,11 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: read
-  statuses: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
 
 jobs:
   build:
@@ -16,6 +17,11 @@ jobs:
     name: Lint Code Base
     # Set the agent to run on
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
 
     steps:
       - name: Checkout Code
@@ -45,6 +51,9 @@ jobs:
         id: install
         run: npm ci
 
+      - name: Test with coverage
+        run: npm test
+
       - name: Ensure package.json version has no tag yet
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
@@ -56,12 +65,17 @@ jobs:
           fi
           echo "Version $VERSION has no tag yet"
 
+      - name: Install tools
+        id: install-tools
+        uses: jdx/mise-action@v5 # zizmor: ignore[unpinned-uses]
+
       - name: Lint Codebase
         id: super-linter
         uses: super-linter/super-linter/slim@v8 # zizmor: ignore[unpinned-uses]
         env:
           DEFAULT_BRANCH: master
           FILTER_REGEX_EXCLUDE: dist/**/*
+          GITHUB_ACTIONS_CONFIG_FILE: .github/actionlint.yml
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           SAVE_SUPER_LINTER_SUMMARY: true
@@ -73,3 +87,4 @@ jobs:
           VALIDATE_JSCPD: false
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_JSON: false
+          VALIDATE_TRIVY: false

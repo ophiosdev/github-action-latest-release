@@ -29,12 +29,18 @@ inputs:
     description: "Whether to fall back to the latest tag when no releases are found"
     required: false
     default: "false"
+  groupBy:
+    description: >-
+      Group versions by major, minor or patch and return the latest release per
+      group as a JSON array in the release output. Empty disables grouping.
+    required: false
+    default: ""
   token:
     description: "The GitHub token or personal access token"
     required: false
 outputs:
   release:
-    description: "Latest release version tag"
+    description: "Latest release version tag, or JSON array when groupBy is set"
   id:
     description: "Latest release ID"
   description:

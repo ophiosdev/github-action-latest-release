@@ -1,6 +1,6 @@
 {
   "name": "github-action-latest-release",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "An action to get the latest release from a Github repo.",
   "private": true,
   "exports": {
@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "package": "esbuild --bundle --minify --sourcemap --platform=node --target=node24 --outfile=dist/index.js src/index.ts",
     "build": "tsc",
+    "test": "vitest run --coverage",
     "format:write": "prettier --write .",
     "format:check": "prettier --check .",
     "local-action": "npx @github/local-action . src/main.ts .env"
@@ -33,12 +34,13 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.0",
-    "@github/local-action": "^7.0.0",
+    "@eslint/compat": "^2.1.1",
+    "@github/local-action": "^7.0.1",
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
-    "esbuild": "0.28.1",
+    "@vitest/coverage-v8": "^5.1.0",
+    "esbuild": "0.28.2",
     "eslint": "^9",
     "eslint-config-prettier": "^10",
     "eslint-import-resolver-typescript": "^4",
@@ -47,16 +49,21 @@
     "eslint-plugin-prettier": "^5",
     "prettier": "^3",
     "prettier-plugin-multiline-arrays": "^4.1.11",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.1.0"
   },
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.0.0",
-    "@octokit/rest": "^22.0.0"
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
+    "@octokit/rest": "^22.0.1"
   },
   "overrides": {
     "rimraf": "^6.0.0",
     "glob": "^13.0.0",
     "undici": "^8.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "unrs-resolver@1.11.1": true
   }
 }
