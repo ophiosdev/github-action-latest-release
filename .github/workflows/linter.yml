@@ -67,7 +67,7 @@ jobs:
 
       - name: Install tools
         id: install-tools
-        uses: jdx/mise-action@v5
+        uses: jdx/mise-action@v5 # zizmor: ignore[unpinned-uses]
 
       - name: Lint Codebase
         id: super-linter
